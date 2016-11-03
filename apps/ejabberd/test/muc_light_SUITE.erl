@@ -64,6 +64,8 @@ end_per_testcase(codec_calls, Config) ->
     mod_muc_light:stop(?DOMAIN),
     mnesia:stop(),
     mnesia:delete_schema([node()]),
+    application:stop(exometer),
+    application:stop(exometer_core),
     Config;
 end_per_testcase(_, Config) ->
     Config.
