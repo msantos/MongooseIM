@@ -150,8 +150,14 @@ lookup_messages({error, _Reason} = Result, _Host,
                      _IsSimple) ->
                      Result;
 lookup_messages(_Result, _Host,
+                _UserID, _UserJID, _RSM, _Borders,
+                _Start, _End, _Now, _WithJID, <<_SearchText/binary>>,
+                _PageSize, _LimitPassed, _MaxResultLimit,
+                _IsSimple) ->
+    {error, 'not-supported'};
+lookup_messages(_Result, _Host,
                      _UserID, UserJID, RSM, Borders,
-                     Start, End, _Now, WithJID,
+                     Start, End, _Now, WithJID, _SearchText = undefined,
                      PageSize, LimitPassed, MaxResultLimit,
                      IsSimple) ->
     try
