@@ -780,7 +780,7 @@ room_jid_to_pid(#jid{luser=RoomName, lserver=MucService}) ->
 -spec default_host() -> list().
 default_host() -> "conference.@HOST@".
 
--spec iq_disco_info(ejabberd:lang()) -> [jlib:xmlel(),...].
+-spec iq_disco_info(ejabberd:lang()) -> [jlib:xmlel(), ...].
 iq_disco_info(Lang) ->
     [#xmlel{name = <<"identity">>,
             attrs = [{<<"category">>, <<"conference">>},
