@@ -634,7 +634,7 @@ handle_purge_single_message(ArcJID=#jid{},
 determine_amp_strategy(Strategy = #amp_strategy{deliver = [none]},
                        FromJID, ToJID, Packet, initial_check) ->
     #jid{luser = LUser, lserver = LServer} = ToJID,
-    ShouldBeStored = is_complete_message(?MODULE, incoming, Packet)
+    ShouldBeStored = is_archivable_message(?MODULE, incoming, Packet)
         andalso is_interesting(ToJID, FromJID)
         andalso ejabberd_auth:is_user_exists(LUser, LServer),
     case ShouldBeStored of
@@ -651,7 +651,7 @@ handle_package(Dir, ReturnMessID,
                LocJID=#jid{},
                RemJID=#jid{},
                SrcJID=#jid{}, Packet) ->
-    case is_complete_message(?MODULE, Dir, Packet) of
+    case is_archivable_message(?MODULE, Dir, Packet) of
         true ->
             Host = server_host(LocJID),
             ArcID = archive_id_int(Host, LocJID),
@@ -983,16 +983,20 @@ compile_params_module(Params) ->
     code:load_binary(Mod, "mod_mam_params.erl", Code).
 
 params_helper(Params) ->
+    %% Try is_complete_message opt for backwards compatibility
+    DefaultIsArchivable =
+      proplists:get_value(is_complete_message, Params, mod_mam_utils),
+
     binary_to_list(iolist_to_binary(io_lib:format(
         "-module(mod_mam_params).~n"
         "-compile(export_all).~n"
         "add_archived_element() -> ~p.~n"
-        "is_complete_message() -> ~p.~n"
+        "is_archivable_message() -> ~p.~n"
         "default_result_limit() -> ~p.~n"
         "max_result_limit() -> ~p.~n"
         "params() -> ~p.~n",
         [proplists:get_bool(add_archived_element, Params),
-         proplists:get_value(is_complete_message, Params, mod_mam_utils),
+         proplists:get_value(is_archivable_message, Params, DefaultIsArchivable),
          proplists:get_value(default_result_limit, Params, 50),
          proplists:get_value(max_result_limit, Params, 50),
          Params
@@ -1006,6 +1010,6 @@ set_params(Params) ->
 add_archived_element() ->
     mod_mam_params:add_archived_element().
 
-is_complete_message(Module, Dir, Packet) ->
-    M = mod_mam_params:is_complete_message(),
-    M:is_complete_message(Module, Dir, Packet).
+is_archivable_message(Module, Dir, Packet) ->
+    M = mod_mam_params:is_archivable_message(),
+    M:is_archivable_message(Module, Dir, Packet).
